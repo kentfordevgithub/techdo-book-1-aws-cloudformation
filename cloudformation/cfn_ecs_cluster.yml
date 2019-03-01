@@ -1,0 +1,25 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Create ECS Cluster and LogGroup.
+
+Resources:
+  ECSCluster:
+      Type: AWS::ECS::Cluster
+      Properties:
+        ClusterName: !Sub "${AWS::StackName}-cluster"
+
+  LogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub "/ecs/logs/${AWS::StackName}/vpc1-ecs-groups"
+
+Outputs:
+  ECSCluster:
+    Description: ID of ECS Cluster
+    Value: !Ref ECSCluster
+    Export:
+      Name: Vpc1-ECS-Cluster
+
+  LogGroup:
+    Value: !Ref LogGroup
+    Export:
+      Name: Vpc1-ECS-LogGroup
