@@ -1,0 +1,134 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Create IAM.
+
+Resources:
+  ECSTaskExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - ec2.amazonaws.com
+                - ecs-tasks.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
+
+  AppServerRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - ec2.amazonaws.com
+                - ecs-tasks.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AmazonS3FullAccess
+
+  AutoScalingRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: codepipeline.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceAutoscaleRole
+
+  CodeBuildRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: codebuild.amazonaws.com
+            Action: 'sts:AssumeRole'
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AmazonS3FullAccess
+        - arn:aws:iam::aws:policy/AWSCodeDeployRoleForECS
+        - arn:aws:iam::aws:policy/AWSCodeDeployRoleForECSLimited
+        - arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryPowerUser
+        - arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
+        - arn:aws:iam::aws:policy/CloudWatchFullAccess
+
+  CodePipelineRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: codepipeline.amazonaws.com
+            Action: 'sts:AssumeRole'
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AmazonS3FullAccess
+        - arn:aws:iam::aws:policy/AWSCodeBuildAdminAccess
+        - arn:aws:iam::aws:policy/AWSCodeDeployRoleForECS
+        - arn:aws:iam::aws:policy/AWSCodeDeployRoleForECSLimited
+        - arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryPowerUser
+        - arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
+        - arn:aws:iam::aws:policy/AmazonECS_FullAccess
+
+Outputs:
+  ECSTaskExecutionRole:
+    Description: ID of IAM role for ECS Task
+    Value: !Ref ECSTaskExecutionRole
+    Export:
+      Name: ECSTaskExecutionRole
+
+  AppServerRole:
+    Description: ID of IAM role for AppServer
+    Value: !Ref AppServerRole
+    Export:
+      Name: AppServerRole
+
+  AutoScalingRole:
+    Description: ID of IAM role for AutoScaling
+    Value: !Ref AutoScalingRole
+    Export:
+      Name: AutoScalingRole
+
+  AutoScalingRoleArn:
+    Description: Arn of IAM role for AutoScaling
+    Value: !GetAtt AutoScalingRole.Arn
+    Export:
+      Name: AutoScalingRoleArn
+
+  CodeBuildRole:
+    Description: ID of IAM role for CodeBuildRole
+    Value: !Ref CodeBuildRole
+    Export:
+      Name: CodeBuildRole
+
+  CodeBuildRoleArn:
+    Description: Arn of IAM role for CodeBuild
+    Value: !GetAtt CodeBuildRole.Arn
+    Export:
+      Name: CodeBuildRoleArn
+
+  CodePipelineRole:
+    Description: ID of IAM role for CodePipelineRole
+    Value: !Ref CodePipelineRole
+    Export:
+      Name: CodePipelineRole
+
+  CodePipelineRoleArn:
+    Description: Arn of IAM role for CodePipelineRole
+    Value: !GetAtt CodePipelineRole.Arn
+    Export:
+      Name: CodePipelineRoleArn
