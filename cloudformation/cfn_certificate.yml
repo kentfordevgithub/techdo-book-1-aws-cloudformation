@@ -1,0 +1,20 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Create Certificates.
+
+Parameters:
+  Domain:
+      Type: String
+
+Resources:
+  Cert:
+    Type: AWS::CertificateManager::Certificate
+    Properties:
+      DomainName: !Ref Domain
+      ValidationMethod: DNS
+
+Outputs:
+  Cert:
+    Description: ID of Certificate
+    Value: !Ref Cert
+    Export:
+      Name: Default-Certificate
