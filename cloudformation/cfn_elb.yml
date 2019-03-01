@@ -1,0 +1,27 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Create LoadBalancer.
+
+Resources:
+  LoadBalancer:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Subnets:
+        - !ImportValue Vpc1-SubnetA1
+        - !ImportValue Vpc1-SubnetC1
+      SecurityGroups:
+        - !ImportValue Vpc1-LoadBalancerSecurityGroup
+      Name: !Sub "${AWS::StackName}-lb"
+      Scheme: internet-facing
+
+Outputs:
+  LoadBalancer:
+    Description: ID of Load Balancer
+    Value: !Ref LoadBalancer
+    Export:
+      Name: Vpc1-LoadBalancer
+
+  LoadBalancerURL:
+    Description: URL of ALB
+    Value: !GetAtt LoadBalancer.DNSName
+    Export:
+      Name: Vpc1-LoadBalancerURL
