@@ -1,0 +1,48 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Create SecurityGroup.
+
+Resources:
+  LoadBalancerSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      VpcId: !ImportValue Vpc1
+      GroupDescription: For LoadBalancer.
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          CidrIp: 0.0.0.0/0
+          FromPort: 443
+          ToPort: 443
+        - IpProtocol: tcp
+          CidrIp: 0.0.0.0/0
+          FromPort: 80
+          ToPort: 80
+      Tags:
+        - Key: Name
+          Value: !Sub "${AWS::StackName}-elb-sg"
+
+  ContainerSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      VpcId: !ImportValue Vpc1
+      GroupDescription: For Container.
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          CidrIp: 0.0.0.0/0
+          FromPort: 80
+          ToPort: 80
+      Tags:
+        - Key: Name
+          Value: !Sub "${AWS::StackName}-container-sg"
+
+Outputs:
+  LoadBalancerSecurityGroup:
+    Description: ID of load-balancer security group
+    Value: !Ref LoadBalancerSecurityGroup
+    Export:
+      Name: Vpc1-LoadBalancerSecurityGroup
+
+  ContainerSecurityGroup:
+    Description: ID of load-balancer security group
+    Value: !Ref ContainerSecurityGroup
+    Export:
+      Name: Vpc1-ContainerSecurityGroup
