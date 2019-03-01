@@ -1,0 +1,33 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Create ECR Repository.
+
+Resources:
+  ECRRepository:
+    Type: AWS::ECR::Repository
+    Properties:
+      RepositoryName: !Sub "${AWS::StackName}"
+      LifecyclePolicy:
+        LifecyclePolicyText: >
+          {
+            "rules": [
+              {
+                "action": {
+                  "type": "expire"
+                },
+                "selection": {
+                  "countType": "imageCountMoreThan",
+                  "countNumber": 3,
+                  "tagStatus": "any"
+                },
+                "description": "Delete more than Images.",
+                "rulePriority": 10
+              }
+            ]
+          }
+
+Outputs:
+  ECRRepositoryURL:
+    Description: "URL of Service image in ECR"
+    Value: !Sub "${AWS::AccountId}.dkr.ecr.ap-northeast-1.amazonaws.com/${AWS::StackName}"
+    Export:
+      Name: !Sub "${AWS::StackName}-url"
