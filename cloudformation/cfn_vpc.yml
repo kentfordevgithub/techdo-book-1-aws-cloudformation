@@ -1,0 +1,173 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Create VPC and Subnet.
+
+Resources:
+  # VPC
+  VPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.0.0.0/16
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      Tags:
+        - Key: Name
+          Value: !Ref "AWS::StackName"
+
+  # RouteTable
+  # A1とC1がPublicで、A2とC2がPrivate
+  RouteTableA1:
+      Type: AWS::EC2::RouteTable
+      Properties:
+        VpcId: !Ref VPC
+        Tags:
+          - Key: Name
+            Value: !Sub "${AWS::StackName}-rt-a1"
+
+  RouteTableA2:
+      Type: AWS::EC2::RouteTable
+      Properties:
+        VpcId: !Ref VPC
+        Tags:
+          - Key: Name
+            Value: !Sub "${AWS::StackName}-rt-a2"
+
+  RouteTableC1:
+      Type: AWS::EC2::RouteTable
+      Properties:
+        VpcId: !Ref VPC
+        Tags:
+          - Key: Name
+            Value: !Sub "${AWS::StackName}-rt-c1"
+
+  RouteTableC2:
+      Type: AWS::EC2::RouteTable
+      Properties:
+        VpcId: !Ref VPC
+        Tags:
+          - Key: Name
+            Value: !Sub "${AWS::StackName}-rt-c2"
+
+  # Subnet 
+  # A1、A2、C1、C2それぞれのサブネットを作成
+  SubnetA1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: 10.0.1.0/24
+      AvailabilityZone: "ap-northeast-1a"
+      Tags:
+        - Key: Name
+          Value: !Sub "${AWS::StackName}-sn-a1"
+  RouteTableTableAssociationA1:
+      Type: AWS::EC2::SubnetRouteTableAssociation
+      Properties:
+        SubnetId: !Ref SubnetA1
+        RouteTableId: !Ref RouteTableA1
+
+  SubnetC1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: 10.0.2.0/24
+      AvailabilityZone: "ap-northeast-1c"
+      Tags:
+        - Key: Name
+          Value: !Sub "${AWS::StackName}-sn-c1"
+  RouteTableTableAssociationC1:
+      Type: AWS::EC2::SubnetRouteTableAssociation
+      Properties:
+        SubnetId: !Ref SubnetC1
+        RouteTableId: !Ref RouteTableC1
+
+  SubnetA2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: 10.0.3.0/24
+      AvailabilityZone: "ap-northeast-1a"
+      Tags:
+        - Key: Name
+          Value: !Sub "${AWS::StackName}-sn-a2"
+  RouteTableTableAssociationA2:
+      Type: AWS::EC2::SubnetRouteTableAssociation
+      Properties:
+        SubnetId: !Ref SubnetA2
+        RouteTableId: !Ref RouteTableA2
+
+  SubnetC2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: 10.0.4.0/24
+      AvailabilityZone: "ap-northeast-1c"
+      Tags:
+        - Key: Name
+          Value: !Sub "${AWS::StackName}-sn-c2"
+  RouteTableTableAssociationC2:
+      Type: AWS::EC2::SubnetRouteTableAssociation
+      Properties:
+        SubnetId: !Ref SubnetC2
+        RouteTableId: !Ref RouteTableC2
+
+  # InternetGateway
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: Name
+          Value: !Sub "${AWS::StackName}-igw"
+  # InternetGatewayをVPCにアタッチ
+  AttachGateWay:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref VPC
+      InternetGatewayId: !Ref InternetGateway
+
+  # Route
+  # パブリックのA1、C1それぞれを作成
+  RouteA1:
+    Type: AWS::EC2::Route
+    DependsOn: InternetGateway
+    Properties:
+      RouteTableId: !Ref RouteTableA1
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref InternetGateway
+
+  RouteC1:
+    Type: AWS::EC2::Route
+    DependsOn: InternetGateway
+    Properties:
+      RouteTableId: !Ref RouteTableC1
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref InternetGateway
+
+Outputs:
+  VPC:
+    Description: ID of VPC
+    Value: !Ref VPC
+    Export:
+      Name: Vpc1
+
+  SubnetA1:
+    Description: ID of VPC Subnet A1 has Route to InternetGateway
+    Value: !Ref SubnetA1
+    Export: 
+      Name: Vpc1-SubnetA1
+
+  SubnetC1:
+    Description: ID of VPC Subnet C1 has Route to InternetGateway
+    Value: !Ref SubnetC1
+    Export: 
+      Name: Vpc1-SubnetC1
+
+  SubnetA2:
+    Description: ID of VPC Subnet A2
+    Value: !Ref SubnetA2
+    Export: 
+      Name: Vpc1-SubnetA2
+
+  SubnetC2:
+    Description: ID of VPC Subnet C2
+    Value: !Ref SubnetC2
+    Export: 
+      Name: Vpc1-SubnetC2
